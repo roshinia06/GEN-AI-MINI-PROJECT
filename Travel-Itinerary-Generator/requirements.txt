@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+langgraph
+ollama
+python-dotenv
+chromadb
+sentence-transformers
+pandas
+reportlab
+pytest
+httpx
+wikipedia
+pydantic
+pydantic-settings
+requests
