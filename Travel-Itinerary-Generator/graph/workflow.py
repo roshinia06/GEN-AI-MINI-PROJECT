@@ -18,6 +18,7 @@ class WorkflowState(TypedDict):
     mode: str
     people_count: int
     interests: List[str]
+    dietary_preference: str
     accommodation_type: str
     notes: str
 
@@ -43,6 +44,7 @@ def run_workflow(
     mode: str = "seasonal",
     people_count: int = 1,
     interests: List[str] = None,
+    dietary_preference: str = "Both",
     accommodation_type: str = "Mid-range",
     notes: str = "",
 ) -> dict:
@@ -80,6 +82,7 @@ def run_workflow(
         "mode": mode,
         "people_count": people_count,
         "interests": interests or [],
+        "dietary_preference": dietary_preference,
         "accommodation_type": accommodation_type,
         "notes": notes,
         "constraints": "",

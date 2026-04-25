@@ -17,13 +17,15 @@ def retrieval_agent(state: dict) -> dict:
     notes = state.get("notes", "").lower()
     interests = state.get("interests", [])
 
-    # Detect dietary preference from notes and interests
-    is_veg = (
-        "veg" in notes
-        or "vegetarian" in notes
-        or "vegan" in notes
-        or "food" in interests  # if food interest chosen, include both
-    )
+    dietary = state.get("dietary_preference", "Both").lower()
+    
+    # Detect dietary preference
+    is_veg = dietary == "veg" or "veg" in notes or "vegetarian" in notes
+    is_both = dietary == "both"
+    
+    food_label = "VEGETARIAN" if is_veg else "LOCAL NON-VEG"
+    if is_both:
+        food_label = "VEGETARIAN & LOCAL NON-VEG"
 
     # 1. Wikipedia data → process → add to vector DB
     wiki_raw = get_wiki_data(destination)
@@ -44,7 +46,6 @@ def retrieval_agent(state: dict) -> dict:
     flight_data = get_flight_estimates(origin, destination)
 
     # 6. Food suggestions (veg or non-veg)
-    food_label = "VEGETARIAN" if is_veg else "LOCAL NON-VEG"
     food_data = get_food_recommendations(is_veg=is_veg)
 
     # Assemble rich context block for the planner

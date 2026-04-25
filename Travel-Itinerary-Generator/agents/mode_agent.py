@@ -25,6 +25,7 @@ def mode_agent(state: dict):
     # Build base constraints
     constraints = f"Group Size: {people_count} {'person' if people_count == 1 else 'people'}. "
     constraints += f"Accommodation Preference: {accommodation_type}. "
+    constraints += f"Dietary Preference: {state.get('dietary_preference', 'Both')}. "
 
     if interests:
         constraints += f"Interests: {', '.join(interests)}. "

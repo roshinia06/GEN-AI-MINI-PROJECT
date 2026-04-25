@@ -64,6 +64,7 @@ class TravelRequest(BaseModel):
     days: int = Field(..., gt=0, le=30, description="Number of days for trip")
     people_count: int = Field(default=1, gt=0, description="Number of travellers")
     interests: List[str] = Field(default=[], description="User interest categories")
+    dietary_preference: str = Field(default="Both", description="Food preference (Veg, Non-Veg, Both)")
     accommodation_type: str = Field(default="Mid-range", description="Accommodation preference")
     notes: str = Field(default="", description="Additional notes or special requirements")
     include_meals: bool = Field(default=True, description="Include meal plans")
@@ -191,6 +192,7 @@ async def generate_itinerary(request: TravelRequest):
             mode=request.mode,
             people_count=request.people_count,
             interests=request.interests,
+            dietary_preference=request.dietary_preference,
             accommodation_type=request.accommodation_type,
             notes=request.notes,
         )
@@ -258,6 +260,7 @@ async def generate_pdf_endpoint(request: TravelRequest):
             mode=request.mode,
             people_count=request.people_count,
             interests=request.interests,
+            dietary_preference=request.dietary_preference,
             accommodation_type=request.accommodation_type,
             notes=request.notes,
         )

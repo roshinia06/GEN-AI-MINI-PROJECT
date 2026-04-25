@@ -8,6 +8,7 @@ You are an expert travel architect creating a premium, detailed itinerary.
 - Duration: {days} days (you MUST generate exactly {days} days)
 - Total Budget: {currency}{budget}
 - Daily Budget Estimate: {currency}{budget_per_day} per day
+- Dietary Preference: {dietary}
 
 ### CONSTRAINTS & PERSONALIZATION
 {constraints}

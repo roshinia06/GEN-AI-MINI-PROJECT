@@ -99,6 +99,7 @@ def planner_agent(state: dict):
         currency=state.get("currency_symbol", "₹"),
         constraints=state.get("constraints", ""),
         mode=state.get("mode", "seasonal"),
+        dietary=state.get("dietary_preference", "Both"),
     )
 
     response = ollama.chat(

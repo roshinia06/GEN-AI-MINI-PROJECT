@@ -3,7 +3,22 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import os
+
+# Try to register a font that supports Unicode (Rupee symbol etc.)
+# Arial is common on Windows.
+try:
+    font_path = "C:\\Windows\\Fonts\\arial.ttf"
+    if os.path.exists(font_path):
+        pdfmetrics.registerFont(TTFont('Arial', font_path))
+        DEFAULT_FONT = 'Arial'
+    else:
+        DEFAULT_FONT = 'Helvetica'
+except:
+    DEFAULT_FONT = 'Helvetica'
+
 
 def generate_pdf(data, filename="itinerary.pdf"):
     """
@@ -15,16 +30,19 @@ def generate_pdf(data, filename="itinerary.pdf"):
 
     # Custom Styles
     title_style = styles['Title']
+    title_style.fontName = DEFAULT_FONT
     title_style.fontSize = 28
     title_style.textColor = colors.HexColor('#B35422') # Rust
     title_style.alignment = 1 # Center
 
     subtitle_style = styles['Heading2']
+    subtitle_style.fontName = DEFAULT_FONT
     subtitle_style.fontSize = 16
     subtitle_style.textColor = colors.HexColor('#2D241D') # Bark
     subtitle_style.alignment = 1
 
     day_header_style = styles['Heading2']
+    day_header_style.fontName = DEFAULT_FONT
     day_header_style.fontSize = 14
     day_header_style.textColor = colors.white
     day_header_style.backColor = colors.HexColor('#B35422') # Rust
@@ -32,10 +50,12 @@ def generate_pdf(data, filename="itinerary.pdf"):
     day_header_style.leftIndent = 0
 
     slot_header_style = styles['Heading3']
+    slot_header_style.fontName = DEFAULT_FONT
     slot_header_style.fontSize = 10
     slot_header_style.textColor = colors.HexColor('#7B5233') # Clay
 
     normal_style = styles['Normal']
+    normal_style.fontName = DEFAULT_FONT
     normal_style.fontSize = 10
     normal_style.leading = 12
 

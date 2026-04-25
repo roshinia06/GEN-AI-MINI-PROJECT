@@ -210,6 +210,9 @@ const Icon = {
   ),
 };
 
+const slugify = (text) => text?.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-") || "itinerary";
+
+
 /* ─── CONSTANTS ──────────────────────────────────────────────── */
 const INTERESTS = [
   { id: "culture", label: "Culture & History", emoji: "🏛️" },
@@ -729,6 +732,7 @@ export default function App() {
   const [accommodation, setAccommodation] = useState("Mid-range");
   const [peopleCount, setPeopleCount] = useState(1);
   const [notes, setNotes] = useState("");
+  const [dietaryPreference, setDietaryPreference] = useState("Both");
   const [chatMessage, setChatMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isChatting, setIsChatting] = useState(false);
@@ -769,6 +773,7 @@ export default function App() {
       mode: mode,
       people_count: peopleCount,
       interests: interests,
+      dietary_preference: dietaryPreference,
       accommodation_type: accommodation,
       notes: notes,
       include_meals: true,
@@ -803,7 +808,11 @@ export default function App() {
         days: result.itinerary.length,
         budget: result.total_cost.toString(),
         mode: result.mode || "seasonal",
-        people_count: result.people_count || 1
+        people_count: result.people_count || 1,
+        dietary_preference: result.dietary_preference || dietaryPreference,
+        interests: result.interests || interests,
+        accommodation_type: result.accommodation_type || accommodation,
+        notes: result.notes || notes
       };
       const res = await fetch(`${API_BASE}/api/generate-pdf`, {
         method: "POST",
@@ -1055,6 +1064,28 @@ export default function App() {
                             background: accommodation === t ? "var(--rust)" : "var(--white)",
                             color: accommodation === t ? "white" : "var(--bark)",
                             cursor: "pointer", fontSize: "13px", fontWeight: "500",
+                          }}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={labelStyle}>Food Preference</label>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      {["Veg", "Non-Veg", "Both"].map(t => (
+                        <button
+                          key={t}
+                          onClick={() => setDietaryPreference(t)}
+                          style={{
+                            padding: "9px 24px", borderRadius: "20px",
+                            border: `1.5px solid ${dietaryPreference === t ? "var(--rust)" : "rgba(26,22,18,0.12)"}`,
+                            background: dietaryPreference === t ? "var(--rust)" : "var(--white)",
+                            color: dietaryPreference === t ? "white" : "var(--bark)",
+                            cursor: "pointer", fontSize: "13px", fontWeight: "600", flex: 1,
+                            transition: "all 0.2s ease"
                           }}
                         >
                           {t}
