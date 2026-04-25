@@ -7,46 +7,54 @@ from rag.flight_loader import get_flight_estimates
 from rag.food_loader import get_food_recommendations
 
 
-def retrieval_agent(state: dict):
+def retrieval_agent(state: dict) -> dict:
+    """
+    Retrieval Agent: Gathers multi-source context for the Planner Agent.
+    Sources: Wikipedia, Geoapify (POI), Booking.com hotels, Flights, Food API, Vector DB.
+    """
     destination = state["destination"]
     origin = state.get("starting_place", "Your location")
     notes = state.get("notes", "").lower()
-    is_veg = "veg" in notes or "vegetarian" in notes
+    interests = state.get("interests", [])
 
-    # 1. Get wiki data
+    # Detect dietary preference from notes and interests
+    is_veg = (
+        "veg" in notes
+        or "vegetarian" in notes
+        or "vegan" in notes
+        or "food" in interests  # if food interest chosen, include both
+    )
+
+    # 1. Wikipedia data → process → add to vector DB
     wiki_raw = get_wiki_data(destination)
-    
-    # 2. Process it
     wiki_processed = process_text(wiki_raw, destination)
-
-    # 3. Add to vector DB
     add_to_vector_store([wiki_processed])
 
-    # 4. Get vector DB data
+    # 2. Query vector DB for relevant snippets
     rag_results = query_vector_store(destination)
-    rag_data = ""
-    if rag_results and len(rag_results) > 0:
-        rag_data = "\n".join(rag_results[0])
-    
-    # 5. Get Geoapify data
+    rag_data = "\n".join(rag_results[0]) if rag_results and rag_results[0] else ""
+
+    # 3. Geoapify POI data
     geo_data = get_geoapify_data(destination)
-    
-    # 6. Get real Booking.com hotels
+
+    # 4. Booking.com hotels
     hotel_data = get_booking_hotels(destination)
-    
-    # 7. Get Flight estimates
+
+    # 5. Flight estimates
     flight_data = get_flight_estimates(origin, destination)
-    
-    # 8. Get Food suggestions
+
+    # 6. Food suggestions (veg or non-veg)
+    food_label = "VEGETARIAN" if is_veg else "LOCAL NON-VEG"
     food_data = get_food_recommendations(is_veg=is_veg)
 
+    # Assemble rich context block for the planner
     context = (
         f"## GEOGRAPHIC & CULTURAL CONTEXT\n{wiki_processed}\n\n"
-        f"## POPULAR ATTRACTIONS & PLACES\n{geo_data}\n\n"
-        f"## RECOMMENDED REAL HOTELS (Booking.com)\n{hotel_data}\n\n"
+        f"## POPULAR ATTRACTIONS & PLACES (Live Data)\n{geo_data}\n\n"
+        f"## RECOMMENDED HOTELS (Booking.com)\n{hotel_data}\n\n"
         f"## FLIGHT ESTIMATES FROM {origin.upper()}\n{flight_data}\n\n"
-        f"## RECOMMENDED {'VEGETARIAN' if is_veg else 'LOCAL'} DISHES\n{food_data}\n\n"
-        f"## DETAILED LOCAL INSIGHTS (RAG)\n{rag_data}"
+        f"## {food_label} FOOD RECOMMENDATIONS\n{food_data}\n\n"
+        f"## ADDITIONAL LOCAL INSIGHTS (RAG)\n{rag_data}"
     )
 
     state["context"] = context

@@ -63,6 +63,9 @@ class TravelRequest(BaseModel):
     budget: str = Field(..., description="Travel budget (e.g. '1000 USD' or '50000')")
     days: int = Field(..., gt=0, le=30, description="Number of days for trip")
     people_count: int = Field(default=1, gt=0, description="Number of travellers")
+    interests: List[str] = Field(default=[], description="User interest categories")
+    accommodation_type: str = Field(default="Mid-range", description="Accommodation preference")
+    notes: str = Field(default="", description="Additional notes or special requirements")
     include_meals: bool = Field(default=True, description="Include meal plans")
     include_hotel: bool = Field(default=True, description="Include hotel recommendations")
     
@@ -180,13 +183,16 @@ async def generate_itinerary(request: TravelRequest):
         
         # Run the LangGraph workflow
         final_plan = run_workflow(
-            request.destination, 
-            budget_val, 
-            request.days, 
-            currency_sym, 
+            request.destination,
+            budget_val,
+            request.days,
+            currency_sym,
             starting_place=request.starting_place,
             mode=request.mode,
-            people_count=request.people_count
+            people_count=request.people_count,
+            interests=request.interests,
+            accommodation_type=request.accommodation_type,
+            notes=request.notes,
         )
         final_plan["currency_symbol"] = currency_sym
         
@@ -244,13 +250,16 @@ async def generate_pdf_endpoint(request: TravelRequest):
         
         # Generate itinerary first
         final_plan = run_workflow(
-            request.destination, 
-            budget_val, 
-            request.days, 
-            currency_sym, 
+            request.destination,
+            budget_val,
+            request.days,
+            currency_sym,
             starting_place=request.starting_place,
             mode=request.mode,
-            people_count=request.people_count
+            people_count=request.people_count,
+            interests=request.interests,
+            accommodation_type=request.accommodation_type,
+            notes=request.notes,
         )
         final_plan["currency_symbol"] = currency_sym
         
