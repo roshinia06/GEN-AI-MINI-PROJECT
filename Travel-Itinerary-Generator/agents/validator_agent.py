@@ -1,10 +1,9 @@
 def validator_agent(state: dict):
     """
-    Validator Agent: Checks if the generated itinerary matches the requested constraints
-    and has all required components in the new morning/afternoon/evening schema.
+    Validator Agent: Checks if the generated itinerary matches the Professional Travel Agency schema.
+    Checks for activities list, title, and city (stay).
     """
-    # Use filtered_plan if available (from budget agent), otherwise raw plan
-    plan = state.get("filtered_plan") or state.get("plan", {})
+    plan = state.get("plan", {})
     itinerary = plan.get("itinerary", [])
     requested_days = state.get("days", 0)
     
@@ -18,18 +17,14 @@ def validator_agent(state: dict):
     for i, day in enumerate(itinerary):
         day_num = i + 1
         
-        # Check for activities (at least one of morning/afternoon/evening should be present)
-        has_activity = any([
-            day.get("morning"),
-            day.get("afternoon"),
-            day.get("evening")
-        ])
-        if not has_activity:
-            errors.append(f"Day {day_num} has no activities.")
+        # Check for activities list
+        activities = day.get("activities", [])
+        if not activities or len(activities) < 2:
+            errors.append(f"Day {day_num} has insufficient activities (need at least 2).")
             
-        # Check for accommodation (stay)
-        if not day.get("accommodation") and not day.get("stay"):
-            errors.append(f"Day {day_num} is missing accommodation.")
+        # Check for city/stay
+        if not day.get("city"):
+            errors.append(f"Day {day_num} is missing city/accommodation info.")
 
     if errors:
         # Join errors into a single warning string for the UI

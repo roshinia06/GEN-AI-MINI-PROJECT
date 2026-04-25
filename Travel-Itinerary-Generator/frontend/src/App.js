@@ -250,9 +250,7 @@ function formatCurrency(n, currencySymbol = "₹") {
   return result;
 }
 
-function slugify(s) {
-  return String(s).toLowerCase().replace(/\s+/g, "-");
-}
+
 
 /* ─── LOADING ANIMATION ──────────────────────────────────────── */
 function LoadingScreen({ phase }) {
@@ -329,11 +327,6 @@ function BudgetBar({ label, amount, total, color, currencySymbol }) {
 function DayCard({ day, index }) {
   const [open, setOpen] = useState(index === 0);
 
-  const slots = [
-    { key: "morning", label: "Morning", icon: <Icon.Sun />, color: "var(--amber)" },
-    { key: "afternoon", label: "Afternoon", icon: <Icon.Map />, color: "var(--sky)" },
-    { key: "evening", label: "Evening", icon: <Icon.Moon />, color: "var(--clay)" },
-  ];
 
   return (
     <div style={{
@@ -379,74 +372,47 @@ function DayCard({ day, index }) {
       </button>
 
       {open && (
-        <div style={{ borderTop: "1px solid rgba(26,22,18,0.07)", padding: "20px 24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-          {slots.map(({ key, label, icon, color }) => {
-            const content = day[key];
-            if (!content) return null;
-            return (
-              <div key={key} style={{ display: "flex", gap: "16px", animation: "slideIn 0.3s ease" }}>
-                <div style={{
-                  width: "32px", height: "32px", borderRadius: "8px", flexShrink: 0,
-                  background: `${color}18`, display: "flex", alignItems: "center",
-                  justifyContent: "center", color,
-                }}>
-                  {icon}
+        <div style={{ borderTop: "1px solid rgba(26,22,18,0.07)", padding: "20px 24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          {day.activities && day.activities.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {day.activities.map((act, idx) => (
+                <div key={idx} style={{ display: "flex", gap: "12px", animation: "fadeUp 0.3s ease" }}>
+                  <div style={{ color: "var(--rust)", flexShrink: 0, marginTop: "4px", fontSize: "12px" }}>✦</div>
+                  <p style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--bark)", margin: 0 }}>{act}</p>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "10px", letterSpacing: "0.1em", color: "var(--mist)", marginBottom: "4px", textTransform: "uppercase" }}>{label}</div>
-                  {typeof content === "string" ? (
-                    <p style={{ fontSize: "14px", lineHeight: "1.7", color: "var(--bark)" }}>{content}</p>
-                  ) : (
-                    <div style={{ fontSize: "14px", lineHeight: "1.7", color: "var(--bark)" }}>
-                      {content.activity && <div><strong>{content.activity}</strong></div>}
-                      {content.description && <div style={{ color: "var(--clay)", marginTop: "4px" }}>{content.description}</div>}
-                      {content.cost != null && (
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", marginTop: "6px", padding: "2px 8px", borderRadius: "4px", background: "rgba(107,143,113,0.1)", fontSize: "12px", color: "var(--sage)" }}>
-                          <Icon.Budget /> {formatCurrency(content.cost, day.currency_symbol || "₹")}
-                        </div>
-                      )}
-                      {content.transport && (
-                        <div style={{ marginTop: "6px", fontSize: "12px", color: "var(--mist)", display: "flex", alignItems: "center", gap: "4px" }}>
-                          <Icon.Plane /> {content.transport}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-
-          {day.dining && (
-            <div style={{
-              padding: "14px 16px", borderRadius: "var(--radius-sm)",
-              background: "rgba(212,168,67,0.08)", border: "1px solid rgba(212,168,67,0.18)",
-              display: "flex", gap: "12px", alignItems: "flex-start",
-            }}>
-              <span style={{ color: "var(--gold)", flexShrink: 0, marginTop: "2px" }}><Icon.Food /></span>
-              <div>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "10px", letterSpacing: "0.1em", color: "var(--gold)", marginBottom: "4px", textTransform: "uppercase" }}>Dining</div>
-                <div style={{ fontSize: "13px", color: "var(--bark)", lineHeight: "1.6" }}>{typeof day.dining === "string" ? day.dining : (day.dining.recommendation || JSON.stringify(day.dining))}</div>
-              </div>
+              ))}
             </div>
+          ) : (
+            <p style={{ fontSize: "14px", color: "var(--mist)" }}>No detailed activities listed for this day.</p>
           )}
 
-          {day.accommodation && (
-            <div style={{
-              padding: "14px 16px", borderRadius: "var(--radius-sm)",
-              background: "rgba(74,127,165,0.07)", border: "1px solid rgba(74,127,165,0.15)",
-              display: "flex", gap: "12px", alignItems: "flex-start",
-            }}>
-              <span style={{ color: "var(--sky)", flexShrink: 0, marginTop: "2px" }}><Icon.Hotel /></span>
-              <div>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "10px", letterSpacing: "0.1em", color: "var(--sky)", marginBottom: "4px", textTransform: "uppercase" }}>Stay</div>
-                <div style={{ fontSize: "13px", color: "var(--bark)", lineHeight: "1.6" }}>{typeof day.accommodation === "string" ? day.accommodation : (day.accommodation.name || JSON.stringify(day.accommodation))}</div>
-                {day.accommodation.cost_per_night != null && (
-                  <div style={{ fontSize: "12px", color: "var(--mist)", marginTop: "4px" }}>{formatCurrency(day.accommodation.cost_per_night, day.currency_symbol || "₹")} / night</div>
-                )}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "4px" }}>
+            {day.meals && day.meals.length > 0 && (
+              <div style={{
+                padding: "8px 14px", borderRadius: "var(--radius-sm)",
+                background: "rgba(212,168,67,0.08)", border: "1px solid rgba(212,168,67,0.18)",
+                display: "flex", gap: "8px", alignItems: "center",
+              }}>
+                <span style={{ color: "var(--gold)", fontSize: "14px" }}><Icon.Food /></span>
+                <span style={{ fontSize: "12px", fontWeight: "600", color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Meals: {day.meals.join(", ")}
+                </span>
               </div>
-            </div>
-          )}
+            )}
+            
+            {day.city && (
+              <div style={{
+                padding: "8px 14px", borderRadius: "var(--radius-sm)",
+                background: "rgba(74,127,165,0.07)", border: "1px solid rgba(74,127,165,0.15)",
+                display: "flex", gap: "8px", alignItems: "center",
+              }}>
+                <span style={{ color: "var(--sky)", fontSize: "14px" }}>📍</span>
+                <span style={{ fontSize: "12px", fontWeight: "600", color: "var(--sky)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Stay: {day.city}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
