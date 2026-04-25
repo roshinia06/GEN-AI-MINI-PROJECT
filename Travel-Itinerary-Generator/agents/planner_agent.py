@@ -51,20 +51,22 @@ def planner_agent(state: dict):
         parsed = json.loads(cleaned)
     except Exception as e:
         # Fallback: create a basic structure if JSON parsing fails
+        fallback_itinerary = []
+        for d in range(1, days + 1):
+            fallback_itinerary.append({
+                "day": d,
+                "morning": {"activity": "Explore City Center", "description": "Start your journey at the heart of the city.", "cost": 0},
+                "afternoon": {"activity": "Local Sightseeing", "description": "Visit iconic landmarks.", "cost": 0},
+                "evening": {"activity": "Evening Stroll", "description": "Enjoy the local atmosphere.", "cost": 0},
+                "dining": "Recommended local restaurant",
+                "accommodation": {"name": "Comfortable Hotel", "cost_per_night": 0}
+            })
+
         parsed = {
             "destination": state.get("destination", ""),
-            "duration": f"{state.get('days', 1)} days",
-            "itinerary": [
-                {
-                    "day": 1,
-                    "morning": {"activity": "Explore City Center", "description": "Start your journey at the heart of the city.", "cost": 0},
-                    "afternoon": {"activity": "Local Sightseeing", "description": "Visit iconic landmarks.", "cost": 0},
-                    "evening": {"activity": "Evening Stroll", "description": "Enjoy the local atmosphere.", "cost": 0},
-                    "dining": "Recommended local restaurant",
-                    "accommodation": {"name": "Comfortable Hotel", "cost_per_night": 0}
-                }
-            ],
-            "total_cost": state.get("budget", 0),
+            "duration": f"{days} days",
+            "itinerary": fallback_itinerary,
+            "total_cost": budget,
             "tips": ["Stay hydrated", "Use local transport"],
             "error": f"JSON parsing failed: {str(e)}"
         }
