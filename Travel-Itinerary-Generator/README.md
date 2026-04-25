@@ -37,38 +37,49 @@ Travel-Itinerary-Generator/
 │   ├── test_backend.py      # FastAPI endpoint tests
 │   └── test_geoapify.py     # Geoapify integration test
 ├── config.py                # Env var loader
+├── TECHNICAL_DOCUMENTATION.md # Detailed handover guide for developers
 ├── requirements.txt         # Python dependencies
 └── .env                     # API keys (not committed)
 ```
 
 ---
 
-## 🤖 6-Agent Workflow
+---
 
-```
-User Input
-    │
-    ▼
-[1] Mode Agent       ─ Interprets seasonal/short_trip/surprise, builds constraints
-    │
-    ▼
-[2] Retrieval Agent  ─ Fetches Wikipedia, Geoapify POI, hotels, flights, food data
-    │
-    ▼
-[3] Planner Agent    ─ Calls Ollama LLM with enriched context, parses JSON
-    │
-    ▼
-[4] Budget Agent     ─ Validates costs, scales to budget, builds breakdown
-    │
-    ▼
-[5] Validator Agent  ─ Checks day count & required schema fields
-    │
-    ▼
-[6] Formatter Agent  ─ Normalizes output to frontend schema
-    │
-    ▼
-Final Itinerary JSON
-```
+## 🤖 Detailed AI Workflow (LangGraph)
+
+The application uses an advanced **Multi-Agent Orchestration** system powered by **LangGraph**. Instead of a single prompt, your request is processed by a pipeline of specialized agents, each refining the plan until it reaches agency-grade quality.
+
+### 🔄 The Generation Pipeline
+
+1.  **Mode Agent (`mode_agent.py`)**:
+    - **Purpose**: Interprets the user's "Trip Persona".
+    - **Logic**: If you pick **Seasonal**, it detects the current month/season and adds curated constraints. If you pick **Surprise**, it selects a hidden gem. It builds the primary instruction set for the LLM.
+
+2.  **Retrieval Agent (`retrieval_agent.py`)**:
+    - **Purpose**: Enriches the request with real-world knowledge.
+    - **Data Sources**: Fetches data from **Wikipedia** (context), **Geoapify** (POI), and **ChromaDB** (Curated local insights).
+    - **Optimization**: Structures raw API data into clean, searchable context strings for the AI.
+
+3.  **Planner Agent (`planner_agent.py`)**:
+    - **Purpose**: The "Architect" of the trip.
+    - **Logic**: Generates **3 distinct options** (Budget, Standard, Premium). It uses a specialized prompt to ensure narrative transitions (e.g., *"We will proceed towards..."*) and explicit hotel/transport mentions.
+    - **Model**: Powered by **Ollama (Llama3/Mistral)**.
+
+4.  **Budget Agent (`budget_agent.py`)**:
+    - **Purpose**: Financial auditor.
+    - **Logic**: Calculates cost breakdowns for every generated option (Accommodation, Food, Activities, Buffer). It ensures the "Budget" option respects the user's spending limit while keeping "Premium" aspirational.
+
+5.  **Validator Agent (`validator_agent.py`)**:
+    - **Purpose**: Quality Control.
+    - **Logic**: Verifies that each option has the correct number of days, valid hotel info, and at least 2 activities per day. If it detects errors, it flags them for the formatter to handle.
+
+6.  **Formatter Agent (`formatter_agent.py`)**:
+    - **Purpose**: Final Data Normalization.
+    - **Logic**: Cleans up the AI response, ensures the JSON matches the frontend schema perfectly, and prepares the data for the **ReportLab PDF generator**.
+
+### 📦 State Management
+The entire process is governed by a `WorkflowState` object in **LangGraph**. This state acts as a "shared memory" that allows agents to see what previous agents have done, ensuring a cohesive and non-hallucinatory itinerary.
 
 ---
 
