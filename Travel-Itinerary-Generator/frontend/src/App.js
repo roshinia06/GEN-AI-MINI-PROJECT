@@ -229,7 +229,6 @@ const TRIP_MODES = [
 ];
 
 const ACCOMMODATION_TYPES = ["Luxury", "Mid-range", "Budget", "Unique stays", "Hostel"];
-const BUDGET_TYPES = ["Low", "Moderate", "High", "Ultra-luxury"];
 const API_BASE = "http://localhost:8000";
 
 /* ─── HELPERS ────────────────────────────────────────────────── */
@@ -241,7 +240,6 @@ function formatCurrency(n, currencySymbol = "₹") {
     maximumFractionDigits: 0
   });
 
-  // Custom fix for common symbols if Intl doesn't match perfectly
   let result = formatter.format(n);
   if (currencySymbol !== "₹" && currencySymbol !== "$" && currencySymbol !== "€") {
     return `${currencySymbol} ${n.toLocaleString("en-IN")}`;
@@ -262,7 +260,6 @@ function LoadingScreen({ phase }) {
     { label: "Validating budget constraints…", icon: "💰" },
     { label: "Polishing the final plan…", icon: "✨" },
   ];
-  const current = phases[phase % phases.length];
 
   return (
     <div style={{
@@ -270,7 +267,6 @@ function LoadingScreen({ phase }) {
       minHeight: "400px", gap: "32px", padding: "48px",
       animation: "fadeIn 0.4s ease",
     }}>
-      {/* Animated compass */}
       <div style={{ position: "relative", width: "96px", height: "96px" }}>
         <div style={{
           width: "96px", height: "96px", borderRadius: "50%",
@@ -279,14 +275,8 @@ function LoadingScreen({ phase }) {
           borderRight: "3px solid var(--amber)",
           animation: "spin 1.2s linear infinite",
         }} />
-        <div style={{
-          position: "absolute", inset: "0", display: "flex", alignItems: "center",
-          justifyContent: "center", fontSize: "32px",
-        }}>
-        </div>
       </div>
 
-      {/* Agent pipeline */}
       <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "360px" }}>
         {phases.map((p, i) => (
           <div key={i} style={{
@@ -307,7 +297,6 @@ function LoadingScreen({ phase }) {
           </div>
         ))}
       </div>
-
     </div>
   );
 }
@@ -353,7 +342,6 @@ function DayCard({ day, index }) {
       boxShadow: open ? "0 8px 32px var(--shadow)" : "0 2px 8px rgba(26,22,18,0.06)",
       transition: "box-shadow 0.3s ease",
     }}>
-      {/* Header */}
       <button
         onClick={() => setOpen(o => !o)}
         style={{
@@ -374,7 +362,6 @@ function DayCard({ day, index }) {
         <div style={{ flex: 1 }}>
           <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "17px", fontWeight: "700", color: "var(--ink)", marginBottom: "2px" }}>
             Day {day.day || (index + 1)}
-            {day.date ? <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "11px", color: "var(--mist)", fontWeight: "400", marginLeft: "12px" }}>{day.date}</span> : null}
           </div>
           {day.theme && (
             <div style={{ fontSize: "13px", color: "var(--clay)" }}>{day.theme}</div>
@@ -388,10 +375,8 @@ function DayCard({ day, index }) {
         </div>
       </button>
 
-      {/* Body */}
       {open && (
         <div style={{ borderTop: "1px solid rgba(26,22,18,0.07)", padding: "20px 24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Time slots */}
           {slots.map(({ key, label, icon, color }) => {
             const content = day[key];
             if (!content) return null;
@@ -429,7 +414,6 @@ function DayCard({ day, index }) {
             );
           })}
 
-          {/* Dining */}
           {day.dining && (
             <div style={{
               padding: "14px 16px", borderRadius: "var(--radius-sm)",
@@ -439,12 +423,11 @@ function DayCard({ day, index }) {
               <span style={{ color: "var(--gold)", flexShrink: 0, marginTop: "2px" }}><Icon.Food /></span>
               <div>
                 <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "10px", letterSpacing: "0.1em", color: "var(--gold)", marginBottom: "4px", textTransform: "uppercase" }}>Dining</div>
-                <div style={{ fontSize: "13px", color: "var(--bark)", lineHeight: "1.6" }}>{typeof day.dining === "string" ? day.dining : JSON.stringify(day.dining)}</div>
+                <div style={{ fontSize: "13px", color: "var(--bark)", lineHeight: "1.6" }}>{typeof day.dining === "string" ? day.dining : (day.dining.recommendation || JSON.stringify(day.dining))}</div>
               </div>
             </div>
           )}
 
-          {/* Accommodation */}
           {day.accommodation && (
             <div style={{
               padding: "14px 16px", borderRadius: "var(--radius-sm)",
@@ -496,13 +479,11 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
 
   return (
     <div style={{ animation: "fadeUp 0.6s ease", display: "flex", flexDirection: "column", gap: "32px" }}>
-      {/* Trip Header */}
       <div style={{
         borderRadius: "var(--radius)", overflow: "hidden",
         background: "linear-gradient(135deg, var(--bark) 0%, #2a1a10 100%)",
         padding: "40px 40px 36px", position: "relative",
       }}>
-        {/* Decorative circles */}
         <div style={{ position: "absolute", top: "-40px", right: "-40px", width: "200px", height: "200px", borderRadius: "50%", background: "rgba(196,98,45,0.15)" }} />
         <div style={{ position: "absolute", bottom: "-20px", right: "80px", width: "120px", height: "120px", borderRadius: "50%", background: "rgba(232,148,58,0.1)" }} />
 
@@ -583,7 +564,6 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
         </div>
       </div>
 
-      {/* Alerts */}
       {alerts.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {alerts.map((alert, i) => (
@@ -602,7 +582,6 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "24px", alignItems: "start" }}>
-        {/* Content Tabs */}
         <div style={{ minHeight: "600px" }}>
           {activeTab === "itinerary" ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -624,7 +603,6 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
               border: "1.5px solid rgba(26,22,18,0.1)", overflow: "hidden",
               animation: "cardReveal 0.4s ease",
             }}>
-              {/* Chat Messages */}
               <div style={{ flex: 1, padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px" }}>
                 {chatHistory.length === 0 && (
                   <div style={{ textAlign: "center", margin: "auto", maxWidth: "400px" }}>
@@ -659,7 +637,6 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
                 <div ref={chatEndRef} />
               </div>
 
-              {/* Chat Input */}
               <form onSubmit={onChat} style={{ padding: "16px 24px", background: "rgba(26,22,18,0.02)", borderTop: "1px solid rgba(26,22,18,0.08)", display: "flex", gap: "12px" }}>
                 <input
                   value={chatMessage}
@@ -672,6 +649,7 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
                   }}
                 />
                 <button
+                  type="submit"
                   disabled={isChatting || !chatMessage.trim()}
                   style={{
                     width: "44px", height: "44px", borderRadius: "var(--radius-sm)",
@@ -688,7 +666,6 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
           )}
         </div>
 
-        {/* Sidebar: Budget */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", position: "sticky", top: "24px" }}>
           <div style={{
             borderRadius: "var(--radius)", border: "1.5px solid rgba(26,22,18,0.1)",
@@ -717,7 +694,6 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
             )}
           </div>
 
-          {/* Tips */}
           {data.tips && data.tips.length > 0 && (
             <div style={{
               borderRadius: "var(--radius)", border: "1.5px solid rgba(107,143,113,0.2)",
@@ -744,13 +720,11 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
 
 /* ─── MAIN APP ───────────────────────────────────────────────── */
 export default function App() {
-  /* form state */
   const [startingPlace, setStartingPlace] = useState("");
   const [destination, setDestination] = useState("");
   const [mode, setMode] = useState("seasonal");
   const [days, setDays] = useState(5);
   const [budget, setBudget] = useState("");
-  const [budgetType, setBudgetType] = useState("Moderate");
   const [interests, setInterests] = useState([]);
   const [accommodation, setAccommodation] = useState("Mid-range");
   const [peopleCount, setPeopleCount] = useState(1);
@@ -759,8 +733,7 @@ export default function App() {
   const [chatHistory, setChatHistory] = useState([]);
   const [isChatting, setIsChatting] = useState(false);
 
-  /* ui state */
-  const [step, setStep] = useState("form");   // form | loading | result
+  const [step, setStep] = useState("form");
   const [loadPhase, setLoadPhase] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -768,7 +741,6 @@ export default function App() {
 
   const phaseRef = useRef(null);
 
-  /* loading phase ticker */
   useEffect(() => {
     if (step === "loading") {
       setLoadPhase(0);
@@ -779,12 +751,10 @@ export default function App() {
     return () => clearInterval(phaseRef.current);
   }, [step]);
 
-  /* interest toggle */
   const toggleInterest = (id) => {
     setInterests(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
-  /* submit */
   const handleSubmit = async () => {
     if (mode !== "surprise" && !destination.trim()) { setError("Please enter a destination."); return; }
     if (interests.length === 0) { setError("Pick at least one interest."); return; }
@@ -798,6 +768,9 @@ export default function App() {
       budget: budget || "50000",
       mode: mode,
       people_count: peopleCount,
+      interests: interests,
+      accommodation_type: accommodation,
+      notes: notes,
       include_meals: true,
       include_hotel: true
     };
@@ -821,7 +794,6 @@ export default function App() {
     }
   };
 
-  /* download PDF */
   const handleDownload = async () => {
     setDownloading(true);
     try {
@@ -881,7 +853,6 @@ export default function App() {
     }
   };
 
-  /* shared label style */
   const labelStyle = {
     fontFamily: "'DM Mono', monospace", fontSize: "11px",
     letterSpacing: "0.1em", color: "var(--clay)", textTransform: "uppercase",
@@ -903,7 +874,6 @@ export default function App() {
       <style>{GLOBAL_STYLE}</style>
 
       <div style={{ position: "relative", zIndex: 1, minHeight: "100vh" }}>
-        {/* ── NAV ── */}
         <nav style={{
           position: "sticky", top: 0, zIndex: 100,
           borderBottom: "1px solid rgba(26,22,18,0.08)",
@@ -924,16 +894,12 @@ export default function App() {
                 WANDERER <span style={{ color: "var(--rust)" }}>AI</span>
               </span>
             </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            </div>
           </div>
         </nav>
 
         <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "48px 40px 80px" }}>
           {step === "form" && (
             <div style={{ maxWidth: "1200px", margin: "0 auto", animation: "fadeUp 0.6s ease" }}>
-              {/* ── FORM ── */}
               <div>
                 <div style={{ marginBottom: "40px" }}>
                   <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", color: "var(--rust)", marginBottom: "12px", textTransform: "uppercase" }}>
@@ -945,7 +911,6 @@ export default function App() {
                   </h1>
                 </div>
 
-                {/* Error */}
                 {error && (
                   <div style={{
                     padding: "14px 18px", borderRadius: "var(--radius-sm)",
@@ -959,7 +924,6 @@ export default function App() {
                 )}
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
-                  {/* From & To */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                     <div>
                       <label style={labelStyle}>From</label>
@@ -986,7 +950,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Trip Mode */}
                   <div>
                     <label style={labelStyle}>Trip Mode</label>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
@@ -1013,7 +976,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Duration */}
                   <div>
                     <label style={labelStyle}>Duration — {days} {days === 1 ? "day" : "days"}</label>
                     <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -1031,52 +993,33 @@ export default function App() {
                         {days}
                       </div>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
-                      {[1, 7, 14, 21].map(v => (
-                        <button key={v} onClick={() => setDays(v)} style={{
-                          fontFamily: "'DM Mono', monospace", fontSize: "11px", color: days === v ? "var(--rust)" : "var(--mist)",
-                          background: "none", border: "none", cursor: "pointer", padding: "2px 4px",
-                          fontWeight: days === v ? "600" : "400",
-                        }}>{v}d</button>
-                      ))}
-                    </div>
                   </div>
 
-                  {/* Travellers & Budget */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                     <div>
                       <label style={labelStyle}>Travellers</label>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px", height: "48px" }}>
-                        <button 
-                          onClick={() => setPeopleCount(Math.max(1, peopleCount - 1))}
-                          style={{ width: "40px", height: "40px", borderRadius: "var(--radius-sm)", border: "1.5px solid rgba(26,22,18,0.14)", background: "var(--white)", cursor: "pointer", fontSize: "18px" }}
-                        >-</button>
-                        <div style={{ flex: 1, textAlign: "center", fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: "700" }}>
-                          {peopleCount} {peopleCount === 1 ? "Person" : "People"}
-                        </div>
-                        <button 
-                          onClick={() => setPeopleCount(peopleCount + 1)}
-                          style={{ width: "40px", height: "40px", borderRadius: "var(--radius-sm)", border: "1.5px solid rgba(26,22,18,0.14)", background: "var(--white)", cursor: "pointer", fontSize: "18px" }}
-                        >+</button>
+                        <button onClick={() => setPeopleCount(Math.max(1, peopleCount - 1))} style={{ width: "40px", height: "40px", borderRadius: "var(--radius-sm)", border: "1.5px solid rgba(26,22,18,0.14)", background: "var(--white)", cursor: "pointer", fontSize: "18px" }}>-</button>
+                        <div style={{ flex: 1, textAlign: "center", fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: "700" }}>{peopleCount}</div>
+                        <button onClick={() => setPeopleCount(peopleCount + 1)} style={{ width: "40px", height: "40px", borderRadius: "var(--radius-sm)", border: "1.5px solid rgba(26,22,18,0.14)", background: "var(--white)", cursor: "pointer", fontSize: "18px" }}>+</button>
                       </div>
                     </div>
                     <div>
-                      <label style={labelStyle}>Budget (e.g. 100 dollars, 50k rupees)</label>
+                      <label style={labelStyle}>Budget (e.g. 50k rupees, 1000 dollars)</label>
                       <div style={{ position: "relative" }}>
                         <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--mist)" }}><Icon.Budget /></span>
                         <input
                           type="text" value={budget} onChange={e => setBudget(e.target.value)}
-                          placeholder="e.g. 50000 INR or 1000 USD"
+                          placeholder="Total budget for the trip"
                           style={{ ...inputStyle, paddingLeft: "44px" }}
                         />
                       </div>
                     </div>
                   </div>
 
-                  {/* Interests */}
                   <div>
                     <label style={labelStyle}>Your Interests</label>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "8px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
                       {INTERESTS.map(({ id, label, emoji }) => {
                         const active = interests.includes(id);
                         return (
@@ -1092,14 +1035,13 @@ export default function App() {
                             }}
                           >
                             <span style={{ fontSize: "18px" }}>{emoji}</span>
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", fontWeight: "500", color: active ? "var(--rust)" : "var(--bark)", textAlign: "center", lineHeight: "1.3" }}>{label}</span>
+                            <span style={{ fontSize: "10px", fontWeight: "500", color: active ? "var(--rust)" : "var(--bark)", textAlign: "center" }}>{label}</span>
                           </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* Accommodation */}
                   <div>
                     <label style={labelStyle}>Accommodation</label>
                     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -1112,8 +1054,7 @@ export default function App() {
                             border: `1.5px solid ${accommodation === t ? "var(--rust)" : "rgba(26,22,18,0.12)"}`,
                             background: accommodation === t ? "var(--rust)" : "var(--white)",
                             color: accommodation === t ? "white" : "var(--bark)",
-                            cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "13px",
-                            fontWeight: "500", transition: "all 0.18s ease",
+                            cursor: "pointer", fontSize: "13px", fontWeight: "500",
                           }}
                         >
                           {t}
@@ -1122,18 +1063,16 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Notes */}
                   <div>
-                    <label style={labelStyle}>Additional Notes (optional)</label>
+                    <label style={labelStyle}>Additional Notes</label>
                     <textarea
                       value={notes} onChange={e => setNotes(e.target.value)}
-                      placeholder="Dietary restrictions, accessibility needs, must-see places…"
+                      placeholder="Dietary preferences, accessibility, specific spots…"
                       rows={3}
-                      style={{ ...inputStyle, resize: "vertical", lineHeight: "1.6" }}
+                      style={{ ...inputStyle, resize: "vertical" }}
                     />
                   </div>
 
-                  {/* CTA */}
                   <button
                     onClick={handleSubmit}
                     style={{
@@ -1141,16 +1080,10 @@ export default function App() {
                       padding: "18px 32px", borderRadius: "var(--radius-sm)",
                       background: "linear-gradient(135deg, var(--rust), var(--amber))",
                       color: "white", border: "none", cursor: "pointer",
-                      fontFamily: "'DM Sans', sans-serif", fontSize: "16px", fontWeight: "700",
-                      boxShadow: "0 8px 32px rgba(196,98,45,0.35)",
-                      transition: "all 0.2s ease", letterSpacing: "0.02em",
+                      fontSize: "16px", fontWeight: "700", boxShadow: "0 8px 32px rgba(196,98,45,0.35)",
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(196,98,45,0.45)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(196,98,45,0.35)"; }}
                   >
-                    <Icon.Sparkle />
-                    Generate My Itinerary
-                    <Icon.Arrow />
+                    <Icon.Sparkle /> Generate My Itinerary <Icon.Arrow />
                   </button>
                 </div>
               </div>
@@ -1158,13 +1091,9 @@ export default function App() {
           )}
 
           {step === "loading" && (
-            <div style={{ maxWidth: "600px", margin: "0 auto", animation: "fadeIn 0.4s ease" }}>
-              <div style={{
-                borderRadius: "var(--radius)", border: "1.5px solid rgba(26,22,18,0.1)",
-                background: "var(--cream)", boxShadow: "0 8px 40px var(--shadow)",
-              }}>
+            <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+              <div style={{ borderRadius: "var(--radius)", background: "var(--cream)", border: "1.5px solid rgba(26,22,18,0.1)", boxShadow: "0 8px 40px var(--shadow)" }}>
                 <div style={{ padding: "32px 40px 0", borderBottom: "1px solid rgba(26,22,18,0.08)" }}>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "11px", color: "var(--rust)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "8px" }}>Generating</div>
                   <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", fontWeight: "700", color: "var(--ink)", marginBottom: "24px" }}>
                     Crafting your <em style={{ color: "var(--rust)" }}>{destination}</em> itinerary…
                   </h2>
@@ -1188,7 +1117,6 @@ export default function App() {
             />
           )}
         </main>
-
       </div>
     </>
   );
