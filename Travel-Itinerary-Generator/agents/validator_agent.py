@@ -1,35 +1,24 @@
 def validator_agent(state: dict):
-    """
-    Validator Agent: Checks if the generated itinerary matches the Professional Travel Agency schema.
-    Checks for activities list, title, and city (stay).
-    """
+    """Validator Agent: Multi-option aware."""
     plan = state.get("plan", {})
-    itinerary = plan.get("itinerary", [])
+    options = plan.get("options", [])
     requested_days = state.get("days", 0)
     
     errors = []
     
-    # 1. Check day count
-    if len(itinerary) < requested_days:
-        errors.append(f"Itinerary has only {len(itinerary)} days, but {requested_days} were requested.")
+    if not options:
+        errors.append("No travel options were generated.")
     
-    # 2. Check for required components in each day
-    for i, day in enumerate(itinerary):
-        day_num = i + 1
+    for i, opt in enumerate(options):
+        itin = opt.get("itinerary", [])
+        if len(itin) < requested_days:
+            errors.append(f"{opt.get('option_id', f'Option {i+1}')} has only {len(itin)} days.")
         
-        # Check for activities list
-        activities = day.get("activities", [])
-        if not activities or len(activities) < 2:
-            errors.append(f"Day {day_num} has insufficient activities (need at least 2).")
-            
-        # Check for city/stay
-        if not day.get("city"):
-            errors.append(f"Day {day_num} is missing city/accommodation info.")
+        if not opt.get("hotel"):
+            errors.append(f"{opt.get('option_id')} is missing hotel details.")
 
     if errors:
-        # Join errors into a single warning string for the UI
         plan["warning"] = " | ".join(errors)
-        state["validation_errors"] = errors
 
     state["final_plan"] = plan
     return state

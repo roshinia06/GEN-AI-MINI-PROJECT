@@ -422,6 +422,7 @@ function DayCard({ day, index }) {
 /* ─── RESULT VIEW ────────────────────────────────────────────── */
 function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, onChat, chatMessage, setChatMessage, isChatting }) {
   const [activeTab, setActiveTab] = useState("itinerary");
+  const [activeOptionIndex, setActiveOptionIndex] = useState(0);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -432,14 +433,16 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
 
   if (!data) return null;
 
-  const days = data.days || data.itinerary || [];
-  const budget = data.budget_breakdown || {};
-  const totalCost = data.total_cost || budget.total || 0;
+  const options = data.options || [];
+  const activeOption = options[activeOptionIndex] || (options.length > 0 ? options[0] : null);
+  
+  const days = activeOption?.itinerary || [];
+  const budget = activeOption?.budget_breakdown || {};
+  const totalCost = activeOption?.pricing?.total_cost || 0;
   const currencySymbol = data.currency_symbol || "₹";
   const alerts = data.warning ? [data.warning] : [];
 
   const budgetItems = [
-    { label: "Flights", key: "flights", color: "var(--rust)" },
     { label: "Accommodation", key: "accommodation", color: "var(--sky)" },
     { label: "Food", key: "food", color: "var(--amber)" },
     { label: "Activities", key: "activities", color: "var(--sage)" },
@@ -458,16 +461,37 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
 
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", color: "var(--amber)", marginBottom: "8px", textTransform: "uppercase" }}>
-            ✦ Your Itinerary is Ready
+            ✦ Your Professional Itinerary
           </div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 5vw, 42px)", fontWeight: "900", color: "var(--white)", marginBottom: "12px", lineHeight: "1.2" }}>
             {data.destination || "Your Journey"}
           </h2>
+
+          {/* Option Selector */}
+          <div style={{ display: "flex", gap: "10px", marginBottom: "28px", flexWrap: "wrap" }}>
+            {options.map((opt, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveOptionIndex(idx)}
+                style={{
+                  padding: "8px 16px", borderRadius: "20px",
+                  border: `1.5px solid ${activeOptionIndex === idx ? "var(--rust)" : "rgba(255,255,255,0.2)"}`,
+                  background: activeOptionIndex === idx ? "var(--rust)" : "transparent",
+                  color: "white", cursor: "pointer", fontSize: "13px", fontWeight: "600",
+                  transition: "all 0.2s ease"
+                }}
+              >
+                {opt.option_id}
+              </button>
+            ))}
+          </div>
+
           <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginBottom: "28px" }}>
             {[
               { icon: <Icon.Calendar />, label: `${days.length} Days` },
               { icon: <Icon.Budget />, label: formatCurrency(totalCost, currencySymbol) },
-              { icon: <Icon.Map />, label: data.accommodation_type || "Mixed stays" },
+              { icon: <Icon.Hotel />, label: activeOption?.hotel?.name || "Premium Stay" },
+              { icon: <Icon.Map />, label: activeOption?.transport_facility || "Private Vehicle" },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", color: "rgba(255,255,255,0.75)", fontSize: "14px" }}>
                 <span style={{ color: "var(--amber)" }}>{item.icon}</span>
@@ -564,6 +588,37 @@ function ItineraryResult({ data, onReset, onDownload, downloading, chatHistory, 
                   No day-by-day breakdown available yet.
                 </div>
               )}
+
+              {/* Package Details */}
+              <div style={{ marginTop: "24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                <div style={{ padding: "20px", background: "rgba(107,143,113,0.06)", borderRadius: "var(--radius-sm)", border: "1.5px solid rgba(107,143,113,0.15)" }}>
+                  <h4 style={{ fontSize: "14px", fontWeight: "700", color: "var(--sage)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Inclusions</h4>
+                  <ul style={{ paddingLeft: "18px", margin: 0, display: "flex", flexDirection: "column", gap: "6px" }}>
+                    {data.inclusions?.map((item, idx) => (
+                      <li key={idx} style={{ fontSize: "13px", color: "var(--bark)" }}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div style={{ padding: "20px", background: "rgba(196,98,45,0.06)", borderRadius: "var(--radius-sm)", border: "1.5px solid rgba(196,98,45,0.15)" }}>
+                  <h4 style={{ fontSize: "14px", fontWeight: "700", color: "var(--rust)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Exclusions</h4>
+                  <ul style={{ paddingLeft: "18px", margin: 0, display: "flex", flexDirection: "column", gap: "6px" }}>
+                    {data.exclusions?.map((item, idx) => (
+                      <li key={idx} style={{ fontSize: "13px", color: "var(--bark)" }}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div style={{ padding: "20px", background: "rgba(26,22,18,0.03)", borderRadius: "var(--radius-sm)", border: "1.5px solid rgba(26,22,18,0.08)" }}>
+                <h4 style={{ fontSize: "14px", fontWeight: "700", color: "var(--bark)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Terms & Conditions</h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  {data.terms?.map((item, idx) => (
+                    <div key={idx} style={{ fontSize: "12px", color: "var(--mist)", display: "flex", gap: "8px" }}>
+                      <span>•</span> {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
             <div style={{

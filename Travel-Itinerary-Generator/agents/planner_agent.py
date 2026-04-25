@@ -6,85 +6,66 @@ from utils.prompt_templates import PLANNER_PROMPT
 
 
 def clean_json(text: str) -> str:
-    """
-    Extract and lightly clean a JSON object from raw LLM output.
-    Only fixes the most common structural issues without corrupting valid JSON.
-    """
-    # Strip markdown code fences
+    """Extract and clean JSON from raw LLM output."""
     text = re.sub(r"```(?:json)?", "", text).strip()
-
     start = text.find("{")
     end = text.rfind("}") + 1
-    if start == -1 or end == 0:
-        return "{}"
-
+    if start == -1 or end == 0: return "{}"
     json_text = text[start:end]
-
-    # Fix trailing commas before } or ]  (common LLM mistake)
     json_text = re.sub(r",\s*([}\]])", r"\1", json_text)
-
     return json_text
 
 
 def build_fallback_plan(state: dict) -> dict:
-    """
-    Returns a valid placeholder plan matching the new Professional Travel Agency schema
-    when the LLM output cannot be parsed.
-    """
-    destination = state.get("destination", "Your Destination")
+    """Full fallback multi-option plan."""
+    dest = state.get("destination", "Destination")
     days = state.get("days", 1)
-    budget = state.get("budget", 0)
-    currency = state.get("currency_symbol", "₹")
+    ppl = state.get("people_count", 1)
+    nights = max(1, days - 1)
 
-    itinerary = []
-    for d in range(1, days + 1):
-        itinerary.append({
-            "day": d,
-            "title": f"{destination} Sightseeing & Exploration",
-            "date": "TBD",
-            "activities": [
-                f"Pick up from the hotel and proceed towards {destination} landmarks.",
-                f"Morning sightseeing includes historical spots and local centers.",
-                f"Lunch at a highly-rated local restaurant.",
-                f"After touring these locations, return to the hotel.",
-                f"Overnight stay in {destination}."
-            ],
-            "city": destination,
-            "meals": ["Breakfast", "Dinner"]
+    options = []
+    for opt_id, hotel, price in [("Option 1 (Budget)", "Eco Stay", 2000), ("Option 2 (Standard)", "Comfort Inn", 4500)]:
+        itinerary = []
+        for d in range(1, days + 1):
+            itinerary.append({
+                "day": d, "title": f"{dest} Discovery", "date": "TBD",
+                "activities": [f"Pick up and proceed towards {dest}.", f"Explore local sights.", "Overnight stay."],
+                "city": dest, "meals": ["Breakfast"]
+            })
+        
+        total_cost = (price * nights) + (2000 * days)
+        options.append({
+            "option_id": opt_id,
+            "hotel": {"name": hotel, "category": "3 Star", "room_type": "Standard", "price_per_night": price, "nights": nights},
+            "itinerary": itinerary,
+            "pricing": {"total_cost": total_cost, "per_person": total_cost // ppl}
         })
 
     return {
-        "destination": destination,
-        "duration": f"{days} Days",
-        "itinerary": itinerary,
-        "total_cost": budget,
-        "currency": currency,
-        "tips": [
-            "Carry local currency for small vendors",
-            "Use local transport apps for best rates",
-            "Book accommodations in advance for better deals",
-        ],
-        "warning": "AI response was malformed — showing a template plan. Try again for a detailed itinerary."
+        "destination": dest, "duration": f"{days} Days",
+        "options": options,
+        "inclusions": ["Sightseeing", "Transfers", "Breakfast"],
+        "exclusions": ["Flights", "Personal expenses"],
+        "terms": ["Advance payment required"],
+        "warning": "Template shown due to AI formatting error."
     }
 
 
 def planner_agent(state: dict):
-    """
-    Planner Agent: Calls the LLM with a structured prompt and parses the JSON response.
-    Falls back to a complete placeholder plan if parsing fails.
-    """
-    budget = state["budget"]
-    days = state["days"]
-
+    """Planner Agent: Multi-option generation."""
+    days = state.get("days", 1)
+    nights = max(1, days - 1)
+    
     prompt = PLANNER_PROMPT.format(
         starting_place=state.get("starting_place", "Your location"),
         destination=state["destination"],
-        budget=budget,
         days=days,
+        nights_count=nights,
+        people_count=state.get("people_count", 1),
         context=state.get("context", ""),
-        currency=state.get("currency_symbol", "₹"),
         mode=state.get("mode", "seasonal"),
         dietary=state.get("dietary_preference", "Both"),
+        constraints=state.get("constraints", ""),
     )
 
     try:
@@ -93,27 +74,15 @@ def planner_agent(state: dict):
             messages=[{"role": "user", "content": prompt}],
             options={"temperature": 0.7}
         )
-        text = response["message"]["content"]
-        
-        cleaned = clean_json(text)
+        cleaned = clean_json(response["message"]["content"])
         parsed = json.loads(cleaned)
 
-        # Ensure itinerary has exactly the requested number of days and correct structure
-        existing = parsed.get("itinerary", [])
-        while len(existing) < days:
-            d = len(existing) + 1
-            existing.append({
-                "day": d,
-                "title": f"Extended Exploration in {state['destination']}",
-                "date": "TBD",
-                "activities": ["Continue exploring local sights.", "Overnight stay."],
-                "city": state['destination'],
-                "meals": ["Breakfast"],
-            })
-        parsed["itinerary"] = existing[:days]
+        # Basic validation: ensure options exist
+        if not parsed.get("options"):
+            raise ValueError("No options generated")
 
     except Exception as e:
-        print(f"[planner_agent] Error: {e}. Using fallback plan.")
+        print(f"[planner_agent] Error: {e}. Falling back.")
         parsed = build_fallback_plan(state)
 
     state["plan"] = parsed
