@@ -1,15 +1,28 @@
+# ── Core Web Framework ───────────────────────────────────────────────
 fastapi
-uvicorn
+uvicorn[standard]
+starlette
+
+# ── LangGraph & AI ───────────────────────────────────────────────────
 langgraph
 ollama
-python-dotenv
+
+# ── Vector Store & Embeddings ────────────────────────────────────────
 chromadb
 sentence-transformers
+
+# ── RAG & Data ───────────────────────────────────────────────────────
+wikipedia
+requests
 pandas
+
+# ── PDF Generation ───────────────────────────────────────────────────
 reportlab
+
+# ── Config & Validation ──────────────────────────────────────────────
+python-dotenv
+pydantic
+
+# ── Testing ──────────────────────────────────────────────────────────
 pytest
 httpx
-wikipedia
-pydantic
-pydantic-settings
-requests
