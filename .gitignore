@@ -9,11 +9,6 @@
 chroma_db/
 .chroma/
 
-# Raw Travel Datasets
-**/data/*.csv
-**/data/*.json
-data/
-
 # Python Environment & Build
 __pycache__/
 *.py[cod]

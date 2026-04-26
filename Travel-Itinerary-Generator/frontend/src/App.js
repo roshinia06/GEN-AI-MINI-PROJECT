@@ -921,7 +921,7 @@ export default function App() {
                 <span style={{ fontSize: "18px" }}>✈</span>
               </div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: "900", color: "var(--ink)", letterSpacing: "-0.02em" }}>
-                WANDERER <span style={{ color: "var(--rust)" }}>AI</span>
+                TRAVEL ITINERARY PLANNER <span style={{ color: "var(--rust)" }}>. AI</span>
               </span>
             </div>
           </div>

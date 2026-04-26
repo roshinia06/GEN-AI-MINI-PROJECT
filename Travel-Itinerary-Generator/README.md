@@ -1,4 +1,4 @@
-# 🌍 Wanderer AI — Travel Itinerary Generator
+# 🌍 TRAVEL ITINERARY PLANNER . AI — Travel Itinerary Generator
 
 An AI-powered travel planning system that generates rich, personalized multi-day itineraries using a **6-agent LangGraph workflow** with real-world data from Booking.com, Geoapify, and Wikipedia.
 

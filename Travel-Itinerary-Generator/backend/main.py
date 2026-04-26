@@ -302,7 +302,7 @@ async def chat_with_itinerary(request: ChatRequest):
         import json
         
         system_prompt = f"""
-        You are 'Wanderer AI', a premium travel concierge. 
+        You are 'TRAVEL ITINERARY PLANNER . AI', a premium travel concierge. 
         You have just generated this itinerary for {request.itinerary['destination']} ({request.itinerary['duration']}).
         
         Current Itinerary Context: {json.dumps(request.itinerary)}
