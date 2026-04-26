@@ -1,18 +1,36 @@
-# Python
+# 🌏 Wanderer AI: Security & Data Exclusion
+
+# Sensitive Environment Variables
+.env
+.env.*
+!.env.example
+
+# Vector Database & Cached Knowledge
+chroma_db/
+.chroma/
+
+# Raw Travel Datasets
+**/data/*.csv
+**/data/*.json
+data/
+
+# Python Environment & Build
 __pycache__/
 *.py[cod]
 *$py.class
 .venv/
 env/
 venv/
-.env
+.pytest_cache/
+.mypy_cache/
+.tox/
 
-# ChromaDB
-chroma_db/
-
-# Node/React
+# Frontend (Node/React)
 node_modules/
+frontend/node_modules/
 build/
+frontend/build/
+dist/
 .pnp
 .pnp.js
 coverage/
@@ -20,12 +38,21 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# PDF
+# Generated Artifacts
 *.pdf
+itinerary.pdf
+*.log
+temp/
 
-# Tests
-.pytest_cache/
+# IDE & Editor Specifics
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.settings/
 
-# OS
+# OS Specifics
 .DS_Store
 Thumbs.db
+Desktop.ini
