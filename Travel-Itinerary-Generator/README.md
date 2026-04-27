@@ -37,7 +37,6 @@ Travel-Itinerary-Generator/
 │   ├── test_backend.py      # FastAPI endpoint tests
 │   └── test_geoapify.py     # Geoapify integration test
 ├── config.py                # Env var loader
-├── TECHNICAL_DOCUMENTATION.md # Detailed handover guide for developers
 ├── requirements.txt         # Python dependencies
 └── .env                     # API keys (not committed)
 ```
