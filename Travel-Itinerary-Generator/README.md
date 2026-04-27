@@ -1,10 +1,10 @@
-# 🌍 TRAVEL ITINERARY PLANNER . AI — Travel Itinerary Generator
+# TRAVEL ITINERARY PLANNER . AI — Travel Itinerary Generator
 
 An AI-powered travel planning system that generates rich, personalized multi-day itineraries using a **6-agent LangGraph workflow** with real-world data from Booking.com, Geoapify, and Wikipedia.
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 Travel-Itinerary-Generator/
@@ -46,11 +46,11 @@ Travel-Itinerary-Generator/
 
 ---
 
-## 🤖 Detailed AI Workflow (LangGraph)
+## Detailed AI Workflow (LangGraph)
 
 The application uses an advanced **Multi-Agent Orchestration** system powered by **LangGraph**. Instead of a single prompt, your request is processed by a pipeline of specialized agents, each refining the plan until it reaches agency-grade quality.
 
-### 🔄 The Generation Pipeline
+###The Generation Pipeline
 
 1.  **Mode Agent (`mode_agent.py`)**:
     - **Purpose**: Interprets the user's "Trip Persona".
@@ -83,7 +83,7 @@ The entire process is governed by a `WorkflowState` object in **LangGraph**. Thi
 
 ---
 
-## ⚙️ Setup
+## Setup
 
 ### 1. Install Dependencies
 
